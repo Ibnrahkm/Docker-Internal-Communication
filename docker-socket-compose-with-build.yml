@@ -1,0 +1,32 @@
+version: '2'
+services:
+  socket-server:
+    build:
+      context: docker-socket-server #the folder path
+      dockerfile: Dockerfile  # the docker file name into that folder
+    image: docker-server:1.0.0
+    container_name: "socket-server.com"
+    ports:
+      - 8080:8080
+    environment:
+      - PORT=8080
+    networks:
+      - test-socket
+
+  client-server:
+    build:
+      context: docker-socket-client
+      dockerfile: Dockerfile
+    image: docker-client:1.0.0
+    container_name: "client-server.com"
+    ports:
+      - 5080:6520
+    environment:
+      - PORT=6520
+      - SERVER_CONTAINER_NAME_WITH_PORT=socket-server.com:8080
+    networks:
+      - test-socket
+
+
+networks:
+  test-socket:
