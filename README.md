@@ -1,4 +1,3 @@
-
 # Docker Internal Communication Sample
 
 I visualized the internal communication among two docker containers.One is server and another is acts as a client.So here server exposed one socket server and listening and client is connecting with that socket server and broadcasting message on 1 second interval.The response and request are printing on log of the containers.
