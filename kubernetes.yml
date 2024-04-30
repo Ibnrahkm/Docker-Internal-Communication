@@ -1,0 +1,84 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: socket-system-server
+spec:
+  replicas: 5
+  selector:
+    matchLabels:
+      app: socket-server
+  template:
+    metadata:
+      labels:
+        app: socket-server
+    spec:
+      containers:
+      - name: docker-socket-server
+        image: docker-server:1.0.1
+        ports:
+        - containerPort: 7520
+        env:
+        - name: PORT
+          value: "7520"
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: socket-system-client
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: socket
+  template:
+    metadata:
+      labels:
+        app: socket
+    spec:
+      containers:
+      - name: docker-socket-client
+        image: docker-client:1.0.0
+        ports:
+        - containerPort: 7520
+        env:
+        - name: PORT
+          value: "7520"
+        - name: SERVER_CONTAINER_NAME_WITH_PORT
+          value: "socket-service:8080"
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: socket-service
+spec:
+  type: LoadBalancer
+  selector:
+    app: socket-server
+  ports:
+  - port: 8080
+    targetPort: 7520
+    protocol: TCP
+
+
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: myingress
+  labels:
+    name: myingress
+spec:
+  rules:
+  - host: socket-service.com
+    http:
+      paths:
+      - pathType: Prefix
+        path: "/"
+        backend:
+          service:
+            name: socket-service
+            port: 
+              number: 8080
